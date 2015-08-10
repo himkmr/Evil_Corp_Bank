@@ -109,6 +109,8 @@ public class TransactionApp {
 	
 	public static int find_Account(String acc_num)
 	{
+		if(acc_num == null || acc_num.equals(""))
+			return -1;
 		for(Account elem: TransactionApp.list)
 		{
 			int acc = Integer.parseInt(acc_num);
