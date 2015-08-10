@@ -1,24 +1,58 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
 public class TransactionApp {
-	static ArrayList<Account> list;
-	static ArrayList<Transaction> transaction;
+	static ArrayList<Account> list = null;
+	static ArrayList<Transaction> transaction = null;
 	public static void main(String[] args) {
 		transaction = new ArrayList<Transaction>();
 		// TODO Auto-generated method stub
 		list = new ArrayList<Account>();
 		Scanner sc = new Scanner(System.in);
 		Account ac;
+		ObjectInputStream in = null;
+		FileInputStream fin = null;
+		//read the serialized object if exists
+		try {
+			fin = new FileInputStream("account_list.ser");
+				 in = new ObjectInputStream(fin);
+					list = (ArrayList<Account>)in.readObject();
+				} catch (Exception e) {
+					//list = null;  do nothing if not found, already null
+					//e.printStackTrace();
+				}
+				
+		
 		while (true) {
 			System.out.println("Please create the user account :");
-			System.out
-					.println("Enter an account numbeer or -1 to stop entering accounts:  ");
+			System.out.println("Enter an account numbeer or -1 to stop entering accounts:  ");
 			String account_num = sc.nextLine();
 			if (Integer.parseInt(account_num) < 0)
 				break;
 			else {
+			
+				boolean acc_exists = false;
+				for(Account elem:list)
+				{
+					if(Integer.parseInt(account_num) ==	elem.getAcc_number())
+						acc_exists = true;
+				}
+				
+				
+				
+				if(acc_exists)
+				{
+						System.out.println("Account present");
+						continue;
+				}
 				ac = new Account();
 				ac.setAcc_number(Integer.parseInt(account_num));
 				System.out.println("Enter the name for the account# "
@@ -32,6 +66,8 @@ public class TransactionApp {
 
 		}
 
+
+		
 		// transactions
 		while (true) {
 			System.out.println("Enter a transaction type: (Check, Card, Deposit or Withdrawl) or -1 to finish");
@@ -63,7 +99,7 @@ public class TransactionApp {
 				}
 				
 			} 
-		//System.out.println(list.toString());
+
 		sc.close();
 		Collections.sort(transaction);
 		for(Transaction elem:transaction)
@@ -78,6 +114,24 @@ public class TransactionApp {
 		}
 		
 	
+		//write back the modified account info
+		ObjectOutputStream out = null;
+		FileOutputStream fileOut = null;
+		try {
+			fileOut = new FileOutputStream("account_list.ser");
+				 out = new ObjectOutputStream(fileOut);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					out.writeObject(list);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		
+		
 		
 		
 	}
