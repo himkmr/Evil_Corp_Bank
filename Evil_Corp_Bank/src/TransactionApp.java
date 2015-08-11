@@ -33,12 +33,12 @@ public class TransactionApp {
 
 			boolean flag = false;
 			System.out
-					.println("Enter an account number or -1 to stop entering accounts:  ");
+					.println("Enter  account number or -1 to stop entering accounts:  ");
 			String account_num = sc.nextLine();
 
 			while (!Validation.validate_Account_Num(account_num)) {
 				System.out
-						.println("Enter an account number or -1 to stop entering accounts:  ");
+						.println("Invalid! Enter an account number or -1 to stop entering accounts:  ");
 				account_num = sc.nextLine();
 
 			}
@@ -49,12 +49,19 @@ public class TransactionApp {
 
 				for (Account elem : list) {
 					if (Integer.parseInt(account_num) == elem.getAcc_number()) {
+						flag = true;
 						System.out.println("Account present, balance is: "
 								+ elem.getBalance());
 						System.out
 								.println("Enter d to delete account, ENTER to continue ");
 						String response = sc.nextLine();
 						if (response.equalsIgnoreCase("d")) {
+							if(elem.getBalance() != 0)
+							{
+								System.out.println("Cannot close account: Non Zero Balance");
+								flag = true;
+								break;
+							}
 							list.remove(elem);
 							System.out.println("Account removed");
 							System.out.println("Current Accounts:");
@@ -64,15 +71,10 @@ public class TransactionApp {
 										+ elem2.getAcc_number() + " Balance: "
 										+ elem2.getBalance());
 							}
-							flag = true;
+							//flag = true;
 							break;
 						} 
 
-					}
-					else{
-						//System.out.println("Account not deleted");
-						flag = true;
-						break;
 					}
 
 				}
@@ -217,18 +219,21 @@ public class TransactionApp {
 	}
 
 	public static void printAccounts() {
+		System.out.println("\n---------------ACCOUNTS------------");
+		System.out.format("%15s%15s%15s\n", "Name", "Account #", "Balance");
+		System.out.format("%15s%15s%15s\n", "----", "--------", "-------");
 		for (Account elem : list) {
-			System.out.println(elem.getName() + ": Account Number  "
-					+ elem.getAcc_number() + " Balance: " + elem.getBalance());
+			System.out.format("%15s%15s%15s\n", elem.getName() , elem.getAcc_number(), elem.getBalance());
 		}
 
 	}
 
 	public static void printTransactions() {
+		System.out.println("\n---------------TRANSACTIONS--------");
+		System.out.format("%15s%15s%15s\n", "Date", "Account #", "$$$$$$$");
+		System.out.format("%15s%15s%15s\n", "----", "--------", "-------");
 		for (Transaction elem : transaction) {
-			System.out.println(elem.getDate() + "  Account # "
-					+ elem.getAccount_number() + "   transaction amount:  "
-					+ elem.getTransaction_amount());
+			System.out.format("%15s%15s%15s\n", elem.getDate(),+elem.account_number,+elem.getTransaction_amount());
 		}
 	}
 
