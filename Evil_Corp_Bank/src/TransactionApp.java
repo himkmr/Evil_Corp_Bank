@@ -14,37 +14,38 @@ public class TransactionApp {
 	static FileInputStream fin = null;
 	static ObjectOutputStream out = null;
 	static FileOutputStream fileOut = null;
+
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		transaction = new ArrayList<Transaction>();
 		list = new ArrayList<Account>();
 		Scanner sc = new Scanner(System.in);
-		Account ac = null;		
-		
+		Account ac = null;
+
 		readFile();
-		
+
 		System.out.println("Current Accounts:");
 		printAccounts();
 
-		
-		//Loops to add/remove accounts
-		
+		// Loops to add/remove accounts
+
 		while (true) {
 
 			boolean flag = false;
-			System.out.println("Enter an account number or -1 to stop entering accounts:  ");
+			System.out
+					.println("Enter an account number or -1 to stop entering accounts:  ");
 			String account_num = sc.nextLine();
 
 			while (!Validation.validate_Account_Num(account_num)) {
-				System.out.println("Enter an account number or -1 to stop entering accounts:  ");
+				System.out
+						.println("Enter an account number or -1 to stop entering accounts:  ");
 				account_num = sc.nextLine();
 
 			}
 
-			if (Integer.parseInt(account_num) < 0)		//EXIT
+			if (Integer.parseInt(account_num) < 0) // EXIT
 				break;
-			else 
-			{
+			else {
 
 				for (Account elem : list) {
 					if (Integer.parseInt(account_num) == elem.getAcc_number()) {
@@ -65,15 +66,19 @@ public class TransactionApp {
 							}
 							flag = true;
 							break;
-						} else
-							continue;
+						} 
 
+					}
+					else{
+						//System.out.println("Account not deleted");
+						flag = true;
+						break;
 					}
 
 				}
 				if (flag)
 					continue;
-				
+
 				ac = new Account();
 				ac.setAcc_number(Integer.parseInt(account_num));
 				System.out.println("Enter the name for the account# "
@@ -87,8 +92,6 @@ public class TransactionApp {
 
 		}
 
-		
-		
 		// Loop to perform transactions
 		while (true) {
 			System.out
@@ -103,7 +106,7 @@ public class TransactionApp {
 				break;
 			System.out.println("Enter the account# ");
 			String account_num = sc.nextLine();
-			
+
 			int acc_index = TransactionApp.find_Account(account_num);
 
 			if (acc_index == -1) {
@@ -141,8 +144,6 @@ public class TransactionApp {
 
 		}
 
-		
-		
 		sc.close();
 		Collections.sort(transaction);
 		printTransactions();
@@ -183,57 +184,52 @@ public class TransactionApp {
 		return -1;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static void readFile() {
 
-@SuppressWarnings("unchecked")
-public static void readFile()
-{
+		// read the serialized object if exists
+		try {
+			fin = new FileInputStream("account_list.ser");
+			in = new ObjectInputStream(fin);
+			list = (ArrayList<Account>) in.readObject();
+		} catch (Exception e) {
+			// list = null; do nothing if not found, already null
+			// e.printStackTrace();
+		}
 
-	// read the serialized object if exists
-	try {
-		fin = new FileInputStream("account_list.ser");
-		in = new ObjectInputStream(fin);
-		list = (ArrayList<Account>) in.readObject();
-	} catch (Exception e) {
-		// list = null; do nothing if not found, already null
-		// e.printStackTrace();
 	}
 
-}
+	public static void writeFile() {
+		try {
+			fileOut = new FileOutputStream("account_list.ser");
+			out = new ObjectOutputStream(fileOut);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			out.writeObject(list);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-public static void writeFile()
-{
-	try {
-		fileOut = new FileOutputStream("account_list.ser");
-		out = new ObjectOutputStream(fileOut);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
 	}
-	try {
-		out.writeObject(list);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+
+	public static void printAccounts() {
+		for (Account elem : list) {
+			System.out.println(elem.getName() + ": Account Number  "
+					+ elem.getAcc_number() + " Balance: " + elem.getBalance());
+		}
+
 	}
 
-}
-public static void  printAccounts()
-{
-	for (Account elem : list) {
-		System.out.println(elem.getName() + ": Account Number  "
-				+ elem.getAcc_number() + " Balance: " + elem.getBalance());
+	public static void printTransactions() {
+		for (Transaction elem : transaction) {
+			System.out.println(elem.getDate() + "  Account # "
+					+ elem.getAccount_number() + "   transaction amount:  "
+					+ elem.getTransaction_amount());
+		}
 	}
-	
-}
-public static void  printTransactions()
-{
-	for (Transaction elem : transaction) {
-		System.out.println(elem.getDate() + "  Account # "
-				+ elem.getAccount_number() + "   transaction amount:  "
-				+ elem.getTransaction_amount());
-	}	
-}
-
-
 
 }
