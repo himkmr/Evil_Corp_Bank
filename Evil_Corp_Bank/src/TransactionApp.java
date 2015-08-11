@@ -108,6 +108,13 @@ public class TransactionApp {
 				break;
 			System.out.println("Enter the account# ");
 			String account_num = sc.nextLine();
+			
+			while (!Validation.validate_Account_Num(account_num)) {
+				System.out.println("Invalid! Enter an account number:  ");
+						account_num = sc.nextLine();
+			}
+			
+			
 
 			int acc_index = TransactionApp.find_Account(account_num);
 
