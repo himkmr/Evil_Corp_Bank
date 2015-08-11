@@ -1,10 +1,8 @@
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -12,50 +10,41 @@ import java.util.Scanner;
 public class TransactionApp {
 	static ArrayList<Account> list = null;
 	static ArrayList<Transaction> transaction = null;
-
+	static ObjectInputStream in = null;
+	static FileInputStream fin = null;
+	static ObjectOutputStream out = null;
+	static FileOutputStream fileOut = null;
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		transaction = new ArrayList<Transaction>();
-		// TODO Auto-generated method stub
 		list = new ArrayList<Account>();
 		Scanner sc = new Scanner(System.in);
-		Account ac;
-		ObjectInputStream in = null;
-		FileInputStream fin = null;
-		// read the serialized object if exists
-		try {
-			fin = new FileInputStream("account_list.ser");
-			in = new ObjectInputStream(fin);
-			list = (ArrayList<Account>) in.readObject();
-		} catch (Exception e) {
-			// list = null; do nothing if not found, already null
-			// e.printStackTrace();
-		}
+		Account ac = null;		
+		
+		readFile();
+		
 		System.out.println("Current Accounts:");
-		for (Account elem : list) {
-			System.out.println(elem.getName() + ": Account Number  "
-					+ elem.getAcc_number() + " Balance: " + elem.getBalance());
-		}
+		printAccounts();
 
+		
+		//Loops to add/remove accounts
+		
 		while (true) {
 
 			boolean flag = false;
-
-			System.out
-					.println("Enter an account number or -1 to stop entering accounts:  ");
+			System.out.println("Enter an account number or -1 to stop entering accounts:  ");
 			String account_num = sc.nextLine();
 
 			while (!Validation.validate_Account_Num(account_num)) {
-
-				System.out
-						.println("Enter an account number or -1 to stop entering accounts:  ");
+				System.out.println("Enter an account number or -1 to stop entering accounts:  ");
 				account_num = sc.nextLine();
 
 			}
 
-			if (Integer.parseInt(account_num) < 0)
+			if (Integer.parseInt(account_num) < 0)		//EXIT
 				break;
-			else {
+			else 
+			{
 
 				for (Account elem : list) {
 					if (Integer.parseInt(account_num) == elem.getAcc_number()) {
@@ -84,6 +73,7 @@ public class TransactionApp {
 				}
 				if (flag)
 					continue;
+				
 				ac = new Account();
 				ac.setAcc_number(Integer.parseInt(account_num));
 				System.out.println("Enter the name for the account# "
@@ -97,7 +87,9 @@ public class TransactionApp {
 
 		}
 
-		// transactions
+		
+		
+		// Loop to perform transactions
 		while (true) {
 			System.out
 					.println("Enter a transaction type: (Check, Card, Deposit or Withdrawl) or -1 to finish");
@@ -149,37 +141,16 @@ public class TransactionApp {
 
 		}
 
+		
+		
 		sc.close();
 		Collections.sort(transaction);
-		for (Transaction elem : transaction) {
-			System.out.println(elem.getDate() + "  Account # "
-					+ elem.getAccount_number() + "   transaction amount:  "
-					+ elem.getTransaction_amount());
-		}
+		printTransactions();
 		perform_Transactions();
 
-		for (Account elem : list) {
-			System.out.println(elem.getName() + "  Account # "
-					+ elem.getAcc_number() + "   Balance:  "
-					+ elem.getBalance());
-		}
-
+		printAccounts();
 		// write back the modified account info
-		ObjectOutputStream out = null;
-		FileOutputStream fileOut = null;
-		try {
-			fileOut = new FileOutputStream("account_list.ser");
-			out = new ObjectOutputStream(fileOut);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			out.writeObject(list);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		writeFile();
 
 	}
 
@@ -211,5 +182,58 @@ public class TransactionApp {
 
 		return -1;
 	}
+
+
+@SuppressWarnings("unchecked")
+public static void readFile()
+{
+
+	// read the serialized object if exists
+	try {
+		fin = new FileInputStream("account_list.ser");
+		in = new ObjectInputStream(fin);
+		list = (ArrayList<Account>) in.readObject();
+	} catch (Exception e) {
+		// list = null; do nothing if not found, already null
+		// e.printStackTrace();
+	}
+
+}
+
+public static void writeFile()
+{
+	try {
+		fileOut = new FileOutputStream("account_list.ser");
+		out = new ObjectOutputStream(fileOut);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	try {
+		out.writeObject(list);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
+}
+public static void  printAccounts()
+{
+	for (Account elem : list) {
+		System.out.println(elem.getName() + ": Account Number  "
+				+ elem.getAcc_number() + " Balance: " + elem.getBalance());
+	}
+	
+}
+public static void  printTransactions()
+{
+	for (Transaction elem : transaction) {
+		System.out.println(elem.getDate() + "  Account # "
+				+ elem.getAccount_number() + "   transaction amount:  "
+				+ elem.getTransaction_amount());
+	}	
+}
+
+
 
 }
