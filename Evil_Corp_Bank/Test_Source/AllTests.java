@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class AllTests {
 
-	@Test
+/*	@Test
 	public void test_find_Account() {
 		assertEquals("Pass", -1, TransactionApp.find_Account(null));
 	}
@@ -55,5 +55,5 @@ public class AllTests {
 		assertTrue(Validation.validate_Amount("234"));
 
 	}
-
+*/
 }

@@ -24,21 +24,33 @@ public class TransactionApp {
 	static ObjectOutputStream out = null;
 	static FileOutputStream fileOut = null;
 
+	static Connection conn = null;
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		
-	/*	transaction = new ArrayList<Transaction>();
+		transaction = new ArrayList<Transaction>();
 		list = new ArrayList<Account>();
 		Scanner sc = new Scanner(System.in);
 		Account ac = null;
 
-		readFile();
+		try {
+			connectSQL();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		System.out.println("Current Accounts:");
-		printAccounts();
+		//Read accounts to arrayList
+		getAccounts();
+		//print accounts
+		System.out.printf("%20s%15s%15s\n", "Name", "Account #", "Balance");
+		for(Account elem: list)
+		{
+			System.out.printf("%20s%15s%15s\n", elem.getName(), elem.getAcc_number(), elem.getBalance());
+		}
 
 		// Loops to add/remove accounts
-
+/*
 		while (true) {
 
 			boolean flag = false;
@@ -103,7 +115,7 @@ public class TransactionApp {
 			}
 
 		}
-
+/*
 		// Loop to perform transactions
 		while (true) {
 			System.out
@@ -174,93 +186,9 @@ public class TransactionApp {
 
 	*/
 		
-	try {
-		connectSQL();
-	} catch (SQLException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+	
 	}
 
-	public static void perform_Transactions() {
-		for (Transaction elem : transaction) {
-
-			for (Account acc_elem : list) {
-				if (acc_elem.getAcc_number() == elem.getAccount_number()) {
-					if (elem.getTransaction_amount() < 0)
-						acc_elem.withdraw(elem.getTransaction_amount());
-					else
-						acc_elem.deposit(elem.getTransaction_amount());
-
-				}
-			}
-
-		}
-
-	}
-
-	public static int find_Account(String acc_num) {
-		if (acc_num == null || acc_num.equals(""))
-			return -1;
-		for (Account elem : TransactionApp.list) {
-			int acc = Integer.parseInt(acc_num);
-			if (acc == elem.getAcc_number())
-				return list.indexOf(elem);
-		}
-
-		return -1;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void readFile() {
-
-		// read the serialized object if exists
-		try {
-			fin = new FileInputStream("account_list.ser");
-			in = new ObjectInputStream(fin);
-			list = (ArrayList<Account>) in.readObject();
-		} catch (Exception e) {
-			// list = null; do nothing if not found, already null
-			// e.printStackTrace();
-		}
-
-	}
-
-	public static void writeFile() {
-		try {
-			fileOut = new FileOutputStream("account_list.ser");
-			out = new ObjectOutputStream(fileOut);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			out.writeObject(list);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	public static void printAccounts() {
-		System.out.println("\n---------------ACCOUNTS------------");
-		System.out.format("%15s%15s%15s\n", "Name", "Account #", "Balance");
-		System.out.format("%15s%15s%15s\n", "----", "--------", "-------");
-		for (Account elem : list) {
-			System.out.format("%15s%15s%15s\n", elem.getName() , elem.getAcc_number(), elem.getBalance());
-		}
-
-	}
-
-	public static void printTransactions() {
-		System.out.println("\n---------------TRANSACTIONS--------");
-		System.out.format("%15s%15s%15s\n", "Date", "Account #", "$$$$$$$");
-		System.out.format("%15s%15s%15s\n", "----", "--------", "-------");
-		for (Transaction elem : transaction) {
-			System.out.format("%15s%15s%15s\n", elem.getDate(),+elem.account_number,+elem.getTransaction_amount());
-		}
-	}
 	
 	public static void connectSQL() throws SQLException {
 		//URL of Oracle database server
@@ -272,24 +200,37 @@ public class TransactionApp {
         props.setProperty("password", "password");
       
         //creating connection to Oracle database using JDBC
-        Connection conn = DriverManager.getConnection(url,props);
+        conn = DriverManager.getConnection(url,props);
 
-        // Select functionality
-        //String sql ="select CUST_LAST_NAME, CUST_CITY,CUST_STATE from " + " demo_customers";
-
-        //creating PreparedStatement object to execute query
-        //PreparedStatement preStatement = conn.prepareStatement(sql);
-    
-        //ResultSet result = preStatement.executeQuery();
-      
-       // while(result.next()){
-         //   System.out.printf("%s %s, %s \n",
-           // 		result.getString("CUST_LAST_NAME"),
-            //		result.getString("CUST_CITY"),
-            	//	result.getString("CUST_STATE"));
-        //}
-        System.out.println("done");
+        System.out.println("connected");
       
     }
+	
+	public static void getAccounts()
+	{
+		 String get_accounts ="select * from BANK_ACCT";
+
+	        //creating PreparedStatement object to execute query
+	        try {
+				PreparedStatement preStatement = conn.prepareStatement(get_accounts);
+				ResultSet result = preStatement.executeQuery();
+			  
+				while(result.next()){
+					Account account_object =new Account();
+					account_object.setName(result.getString("NAME"));
+					account_object.setBalance(Double.parseDouble(result.getString("BALANCE")));
+					account_object.setAcc_type(result.getString("ACC_TYPE"));
+					account_object.setAcc_number(Integer.parseInt(result.getString("ACC_NUMBER")));
+	            	list.add(account_object);
+	            	
+	        }
+	        } catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		
+		
+	}
+	
 
 }

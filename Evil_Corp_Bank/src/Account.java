@@ -10,6 +10,14 @@ public class Account implements Serializable {
 	// test comment for git paired
 	// change account
 	
+	public String getAcc_type() {
+		return acc_type;
+	}
+
+	public void setAcc_type(String acc_type) {
+		this.acc_type = acc_type;
+	}
+
 	public int getAcc_number() {
 		return acc_number;
 	}
