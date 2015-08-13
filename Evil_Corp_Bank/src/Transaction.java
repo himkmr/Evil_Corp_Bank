@@ -26,11 +26,11 @@ public class Transaction implements Comparable {
 	}
 
 	public Date getDate() {
-		return date;
+		return transaction_date;
 	}
 
 	public void setDate(Date date) {
-		this.date = date;
+		this.transaction_date = date;
 	}
 
 
