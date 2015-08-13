@@ -87,6 +87,7 @@ public class TransactionApp {
 								break;
 							}
 							list.remove(elem);
+							del_list.add(elem);
 							System.out.println("Account removed");
 							System.out.println("Current Accounts:");
 							for (Account elem2 : list) {
@@ -187,7 +188,7 @@ public class TransactionApp {
 		writeFile();
 
 	*/
-
+		removeAccounts();
 		addAccounts();
 		upDateDB();
 		
@@ -211,7 +212,22 @@ public class TransactionApp {
       
     }
 	
-	
+	public static void removeAccounts(){
+        try {
+		for(Account elem:new_list)
+		{
+			String new_accounts ="delete from BANK_ACCT where ACC _NUMBER = "+elem.getAcc_number();
+			System.out.println(new_accounts);
+			PreparedStatement preStatement = conn.prepareStatement(new_accounts);
+			ResultSet result = preStatement.executeQuery();
+		}
+		
+        } catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+      
+    }
 	
 	
 	public static void upDateDB(){
