@@ -6,7 +6,7 @@ import java.util.Date;
 public class Transaction implements Comparable {
 	int account_number;
 	double transaction_amount;
-	Date date;
+	Date transaction_date;
 	int transaction_id;
 	
 	public int getAccount_number() {
