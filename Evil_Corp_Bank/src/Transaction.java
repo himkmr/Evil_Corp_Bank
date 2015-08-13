@@ -1,10 +1,13 @@
+import java.util.Date;
+
 
 //comment
 
 public class Transaction implements Comparable {
 	int account_number;
-//another comment hkl
-//change transaction	
+	double transaction_amount;
+	Date date;
+	int transaction_id;
 	
 	public int getAccount_number() {
 		return account_number;
@@ -22,18 +25,17 @@ public class Transaction implements Comparable {
 		this.transaction_amount = transaction_amount;
 	}
 
-	public String getDate() {
+	public Date getDate() {
 		return date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 
-	double transaction_amount;
-	String date;
 
-	public static Transaction getTransaction(int acc, double am, String date) {
+
+	public static Transaction getTransaction(int acc, double am, Date date) {
 		Transaction tr = new Transaction();
 		tr.setAccount_number(acc);
 		tr.setDate(date);
