@@ -6,8 +6,17 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+
+
 
 public class TransactionApp {
+	
 	static ArrayList<Account> list = null;
 	static ArrayList<Transaction> transaction = null;
 	static ObjectInputStream in = null;
@@ -17,7 +26,8 @@ public class TransactionApp {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
-		transaction = new ArrayList<Transaction>();
+		
+	/*	transaction = new ArrayList<Transaction>();
 		list = new ArrayList<Account>();
 		Scanner sc = new Scanner(System.in);
 		Account ac = null;
@@ -162,6 +172,14 @@ public class TransactionApp {
 		// write back the modified account info
 		writeFile();
 
+	*/
+		
+	try {
+		connectSQL();
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	}
 
 	public static void perform_Transactions() {
@@ -243,5 +261,35 @@ public class TransactionApp {
 			System.out.format("%15s%15s%15s\n", elem.getDate(),+elem.account_number,+elem.getTransaction_amount());
 		}
 	}
+	
+	public static void connectSQL() throws SQLException {
+		//URL of Oracle database server
+        String url = "jdbc:oracle:thin:testuser/password@localhost"; 
+        
+        //properties for creating connection to Oracle database
+        Properties props = new Properties();
+        props.setProperty("user", "testdb");
+        props.setProperty("password", "password");
+      
+        //creating connection to Oracle database using JDBC
+        Connection conn = DriverManager.getConnection(url,props);
+
+        // Select functionality
+        //String sql ="select CUST_LAST_NAME, CUST_CITY,CUST_STATE from " + " demo_customers";
+
+        //creating PreparedStatement object to execute query
+        //PreparedStatement preStatement = conn.prepareStatement(sql);
+    
+        //ResultSet result = preStatement.executeQuery();
+      
+       // while(result.next()){
+         //   System.out.printf("%s %s, %s \n",
+           // 		result.getString("CUST_LAST_NAME"),
+            //		result.getString("CUST_CITY"),
+            	//	result.getString("CUST_STATE"));
+        //}
+        System.out.println("done");
+      
+    }
 
 }
