@@ -4,6 +4,7 @@ public class Account implements Serializable {
 	private int acc_number;
 	private double balance;
 	private String name;
+	private String acc_type;
 
 	
 	// test comment for git paired
