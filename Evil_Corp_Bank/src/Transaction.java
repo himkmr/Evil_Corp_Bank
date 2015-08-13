@@ -6,9 +6,25 @@ import java.util.Date;
 public class Transaction implements Comparable {
 	int account_number;
 	double transaction_amount;
-	Date transaction_date;
+	String transaction_date;
 	int transaction_id;
 	
+	public String getTransaction_date() {
+		return transaction_date;
+	}
+
+	public void setTransaction_date(String transaction_date) {
+		this.transaction_date = transaction_date;
+	}
+
+	public int getTransaction_id() {
+		return transaction_id;
+	}
+
+	public void setTransaction_id(int transaction_id) {
+		this.transaction_id = transaction_id;
+	}
+
 	public int getAccount_number() {
 		return account_number;
 	}
@@ -25,22 +41,22 @@ public class Transaction implements Comparable {
 		this.transaction_amount = transaction_amount;
 	}
 
-	public Date getDate() {
+	public String getDate() {
 		return transaction_date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.transaction_date = date;
 	}
 
 
 
-	public static Transaction getTransaction(int acc, double am, Date date) {
+	public static Transaction getTransaction(int acc, double am, String date, int id) {
 		Transaction tr = new Transaction();
 		tr.setAccount_number(acc);
 		tr.setDate(date);
 		tr.setTransaction_amount(am);
-
+		tr.setTransaction_id(id);
 		return tr;
 	}
 

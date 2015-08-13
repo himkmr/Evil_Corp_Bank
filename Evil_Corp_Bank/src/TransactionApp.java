@@ -3,8 +3,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,7 +30,7 @@ public class TransactionApp {
 	static Connection conn = null;
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
-		
+		int tr_id=0;
 		transaction = new ArrayList<Transaction>();
 		list = new ArrayList<Account>();
 		new_list = new ArrayList<Account>();	//list for new accounts
@@ -118,11 +121,11 @@ public class TransactionApp {
 			}
 
 		}
-/*
+
 		// Loop to perform transactions
 		while (true) {
 			System.out
-					.println("Enter a transaction type: (Check, Card, Deposit or Withdrawl) or -1 to finish");
+					.println("Enter a transaction type: (c:Check, dc:Debit Card, d:Deposit or w:Withdrawl) or -1 to finish");
 			String tr = sc.nextLine();
 
 			if ((!tr.equalsIgnoreCase("-1")) && (!tr.equalsIgnoreCase("w"))
@@ -158,21 +161,32 @@ public class TransactionApp {
 				double am = Double.parseDouble(db);
 				;
 				// sc.nextLine();
-				System.out.println("Enter Date DD\\MM\\YY");
+				System.out.println("Enter Date MM/DD/YY");
 				String date = sc.nextLine();
 				while (!Validation.validate_Date(date)) {
-					System.out.println("Invalid date! Enter Again: DD\\MM\\YY");
+					System.out.println("Invalid date! Enter Again: MM/DD/YY");
 					date = sc.nextLine();
 				}
+
+				if(tr.equalsIgnoreCase("d"))
+					tr_id =1;
+				else if(tr.equalsIgnoreCase("dc"))
+					tr_id =4;
+				else if(tr.equalsIgnoreCase("c"))
+					tr_id =2;
+				else if(tr.equalsIgnoreCase("w"))
+						tr_id=3;
+					
+
 				if (tr.equalsIgnoreCase("c") || tr.equalsIgnoreCase("d")) // deposit
 				{
 					transaction.add(Transaction.getTransaction(
-							Integer.parseInt(account_num), am, date));
+							Integer.parseInt(account_num), am, date, tr_id));
 				} else // Withdrawal
 				{
 					am = 0 - am;
 					transaction.add(Transaction.getTransaction(
-							Integer.parseInt(account_num), am, date));
+							Integer.parseInt(account_num), am, date, tr_id));
 				}
 			}
 
@@ -185,9 +199,8 @@ public class TransactionApp {
 
 		printAccounts();
 		// write back the modified account info
-		writeFile();
 
-	*/
+
 		removeAccounts();
 		addAccounts();
 		upDateDB();
@@ -214,10 +227,10 @@ public class TransactionApp {
 	
 	public static void removeAccounts(){
         try {
-		for(Account elem:new_list)
+		for(Account elem:del_list)
 		{
-			String new_accounts ="delete from BANK_ACCT where ACC _NUMBER = "+elem.getAcc_number();
-			System.out.println(new_accounts);
+			String new_accounts ="delete from BANK_ACCT where ACC_NUMBER = "+elem.getAcc_number();
+		//	System.out.println(new_accounts);
 			PreparedStatement preStatement = conn.prepareStatement(new_accounts);
 			ResultSet result = preStatement.executeQuery();
 		}
@@ -235,10 +248,25 @@ public class TransactionApp {
 		for(Account elem:list)
 		{
 			String set_accounts ="update BANK_ACCT SET BALANCE ="+ elem.getBalance()+ " where ACC_NUMBER = "+elem.getAcc_number();
-			System.out.println(set_accounts);
+		//	System.out.println(set_accounts);
 			PreparedStatement preStatement = conn.prepareStatement(set_accounts);
 			ResultSet result = preStatement.executeQuery();
 		}
+		
+
+	
+		
+		for(Transaction elem:transaction)
+		{
+
+			String set_transactions = "insert into TRANSACTION (account_number, transaction_amount,transaction_id,transaction_date) values  ("+elem.account_number+","+ elem.transaction_amount+","+ elem.transaction_id+","+ "TO_DATE('"+elem.getDate()+"','mm/dd/yyyy'))";
+			// insert the data
+			System.out.println(set_transactions);
+			PreparedStatement preStatement = conn.prepareStatement(set_transactions);
+			ResultSet result = preStatement.executeQuery();
+		}
+		
+		
 		
         } catch (SQLException e1) {
 			// TODO Auto-generated catch block
@@ -260,7 +288,7 @@ public class TransactionApp {
         //creating connection to Oracle database using JDBC
         conn = DriverManager.getConnection(url,props);
 
-        System.out.println("connected");
+        //System.out.println("connected");
       
     }
 	
@@ -287,6 +315,54 @@ public class TransactionApp {
 			}
 		
 		
+	}
+	public static void perform_Transactions() {
+		for (Transaction elem : transaction) {
+
+			for (Account acc_elem : list) {
+				if (acc_elem.getAcc_number() == elem.getAccount_number()) {
+					if (elem.getTransaction_amount() < 0)
+						acc_elem.withdraw(elem.getTransaction_amount());
+					else
+						acc_elem.deposit(elem.getTransaction_amount());
+
+				}
+			}
+
+		}
+
+	}
+
+	public static int find_Account(String acc_num) {
+		if (acc_num == null || acc_num.equals(""))
+			return -1;
+		for (Account elem : TransactionApp.list) {
+			int acc = Integer.parseInt(acc_num);
+			if (acc == elem.getAcc_number())
+				return list.indexOf(elem);
+		}
+
+		return -1;
+	}
+	
+	
+	public static void printAccounts() {
+		System.out.println("\n---------------ACCOUNTS------------");
+		System.out.format("%15s%15s%15s\n", "Name", "Account #", "Balance");
+		System.out.format("%15s%15s%15s\n", "----", "--------", "-------");
+		for (Account elem : list) {
+			System.out.format("%15s%15s%15s\n", elem.getName() , elem.getAcc_number(), elem.getBalance());
+		}
+
+	}
+
+	public static void printTransactions() {
+		System.out.println("\n---------------TRANSACTIONS--------");
+		System.out.format("%25s%25s%25s\n", "Date", "Account #", "$$$$$$$");
+		System.out.format("%25s%25s%25s\n", "----", "--------", "-------");
+		for (Transaction elem : transaction) {
+			System.out.format("%15s%15s%15s\n", elem.getDate(),+elem.account_number,+elem.getTransaction_amount());
+		}
 	}
 	
 

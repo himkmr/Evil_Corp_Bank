@@ -16,7 +16,7 @@ public class Validation {
 	}
 
 	public static boolean validate_Date(String date) {
-		String regex = "([0-9])+\\\\([0-9])+\\\\([0-9])+";
+		String regex = "([0-9])+\\/([0-9])+\\/([0-9])+";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(date);
 		if (matcher.matches())
