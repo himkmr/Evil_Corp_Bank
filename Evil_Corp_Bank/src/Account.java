@@ -5,6 +5,9 @@ public class Account implements Serializable {
 	private double balance;
 	private String name;
 
+	
+	// test comment for git paired
+	
 	public int getAcc_number() {
 		return acc_number;
 	}
