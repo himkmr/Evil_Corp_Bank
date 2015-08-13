@@ -16,20 +16,22 @@ import java.util.Properties;
 
 
 public class TransactionApp {
-	
 	static ArrayList<Account> list = null;
 	static ArrayList<Transaction> transaction = null;
 	static ObjectInputStream in = null;
 	static FileInputStream fin = null;
 	static ObjectOutputStream out = null;
 	static FileOutputStream fileOut = null;
-
+	static ArrayList<Account> new_list = null;
+	static ArrayList<Account> del_list = null;
 	static Connection conn = null;
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		
 		transaction = new ArrayList<Transaction>();
 		list = new ArrayList<Account>();
+		new_list = new ArrayList<Account>();	//list for new accounts
+		del_list = new ArrayList<Account>();	//accounts to remove
 		Scanner sc = new Scanner(System.in);
 		Account ac = null;
 
@@ -50,7 +52,7 @@ public class TransactionApp {
 		}
 
 		// Loops to add/remove accounts
-/*
+
 		while (true) {
 
 			boolean flag = false;
@@ -111,7 +113,7 @@ public class TransactionApp {
 				System.out.println("Enter the balance for account number# "
 						+ account_num);
 				ac.setBalance(Double.parseDouble(sc.nextLine()));
-				list.add(ac);
+				new_list.add(ac);
 			}
 
 		}
@@ -185,10 +187,50 @@ public class TransactionApp {
 		writeFile();
 
 	*/
+
+		addAccounts();
+		upDateDB();
 		
-	
 	}
 
+	
+	public static void addAccounts(){
+        try {
+		for(Account elem:new_list)
+		{
+			String new_accounts ="insert into BANK_ACCT (ACC_NUMBER, NAME, BALANCE)values("+elem.getAcc_number()+ " ,'"+elem.getName()+"',"+elem.getBalance()+")";
+			System.out.println(new_accounts);
+			PreparedStatement preStatement = conn.prepareStatement(new_accounts);
+			ResultSet result = preStatement.executeQuery();
+		}
+		
+        } catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+      
+    }
+	
+	
+	
+	
+	public static void upDateDB(){
+        try {
+		for(Account elem:list)
+		{
+			String set_accounts ="update BANK_ACCT SET BALANCE ="+ elem.getBalance()+ " where ACC_NUMBER = "+elem.getAcc_number();
+			System.out.println(set_accounts);
+			PreparedStatement preStatement = conn.prepareStatement(set_accounts);
+			ResultSet result = preStatement.executeQuery();
+		}
+		
+        } catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+      
+    }
+	
 	
 	public static void connectSQL() throws SQLException {
 		//URL of Oracle database server
@@ -219,7 +261,6 @@ public class TransactionApp {
 					Account account_object =new Account();
 					account_object.setName(result.getString("NAME"));
 					account_object.setBalance(Double.parseDouble(result.getString("BALANCE")));
-					account_object.setAcc_type(result.getString("ACC_TYPE"));
 					account_object.setAcc_number(Integer.parseInt(result.getString("ACC_NUMBER")));
 	            	list.add(account_object);
 	            	
