@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -48,10 +49,10 @@ public class TransactionApp {
 		//Read accounts to arrayList
 		getAccounts();
 		//print accounts
-		System.out.printf("%20s%15s%15s\n", "Name", "Account #", "Balance");
+		System.out.printf("%20s%15s%15s%15s\n", "Name", "Account #", "Balance", "Account Type");
 		for(Account elem: list)
 		{
-			System.out.printf("%20s%15s%15s\n", elem.getName(), elem.getAcc_number(), elem.getBalance());
+			System.out.printf("%20s%15s%15s%15s\n", elem.getName(), elem.getAcc_number(), elem.getBalance(), elem.getAcc_type());
 		}
 
 		// Loops to add/remove accounts
@@ -97,7 +98,7 @@ public class TransactionApp {
 								System.out.println(elem2.getName()
 										+ ": Account Number  "
 										+ elem2.getAcc_number() + " Balance: "
-										+ elem2.getBalance());
+										+ elem2.getBalance()+" Acc type: "+ elem2.getAcc_type());
 							}
 							//flag = true;
 							break;
@@ -106,17 +107,64 @@ public class TransactionApp {
 					}
 
 				}
-				if (flag)
-					continue;
 
 				ac = new Account();
 				ac.setAcc_number(Integer.parseInt(account_num));
-				System.out.println("Enter the name for the account# "
+				System.out.println("Enter the name for your account# "
 						+ account_num);
-				ac.setName(sc.nextLine());
+				String name = sc.nextLine();
+				
+				int type = find_Account_by_name(name);
+				System.out.println(type);
+				//if name exists check acc_type
+				//if both exists prompt again
+				if(type!=3)
+				{
+					if(type ==1)
+					{
+						System.out.println("Would you like to open a savings account: y/n");
+						String response = sc.nextLine();
+						if(!response.equalsIgnoreCase("y"))
+							continue;
+						else{
+							ac.setAcc_type("Saving");
+							ac.setAcc_number(generate_Unique_acc_num());
+							}
+					}
+					else if(type ==2)
+					{
+						System.out.println("Would you like to open a Checking account: y/n");
+						String response = sc.nextLine();
+						if(!response.equalsIgnoreCase("y"))
+							continue;
+						else
+							ac.setAcc_type("Checking");
+							ac.setAcc_number(generate_Unique_acc_num());
+					}
+					else if(type ==0)
+					{
+						System.out.println("You have both accounts! ");
+						break;
+					
+					}
+				}
+				else	//no accounts for this name
+				{
+					System.out.println("Enter c for Checking: s for Savings");
+					String acc_type = sc.nextLine();
+					if(acc_type.equalsIgnoreCase("C"))
+						ac.setAcc_type("Checking");
+					else
+						ac.setAcc_type("Saving");
+					
+				}
+				ac.setName(name);
 				System.out.println("Enter the balance for account number# "
-						+ account_num);
+						+ ac.getAcc_number());
+				
 				ac.setBalance(Double.parseDouble(sc.nextLine()));
+				
+				System.out.println("balance "+ ac.getBalance());
 				new_list.add(ac);
 			}
 
@@ -125,16 +173,18 @@ public class TransactionApp {
 		// Loop to perform transactions
 		while (true) {
 			System.out
-					.println("Enter a transaction type: (c:Check, dc:Debit Card, d:Deposit or w:Withdrawl) or -1 to finish");
+					.println("Enter a transaction type: (c:Check, dc:Debit Card, d:Deposit, tr:transfer, or w:Withdrawl) or -1 to finish");
 			String tr = sc.nextLine();
 
 			if ((!tr.equalsIgnoreCase("-1")) && (!tr.equalsIgnoreCase("w"))
 					&& (!tr.equalsIgnoreCase("d"))
-					&& (!tr.equalsIgnoreCase("c")))
+					&& (!tr.equalsIgnoreCase("c"))
+					&& (!tr.equalsIgnoreCase("dc"))
+					&& (!tr.equalsIgnoreCase("tr")))
 				continue;
 			if (tr.equalsIgnoreCase("-1"))
 				break;
-			System.out.println("Enter the account# ");
+			System.out.println("Enter your account# ");
 			String account_num = sc.nextLine();
 			
 			while (!Validation.validate_Account_Num(account_num)) {
@@ -176,13 +226,51 @@ public class TransactionApp {
 					tr_id =2;
 				else if(tr.equalsIgnoreCase("w"))
 						tr_id=3;
+				else if(tr.equalsIgnoreCase("tr"))
+					tr_id=5;
 					
 
 				if (tr.equalsIgnoreCase("c") || tr.equalsIgnoreCase("d")) // deposit
 				{
 					transaction.add(Transaction.getTransaction(
 							Integer.parseInt(account_num), am, date, tr_id));
-				} else // Withdrawal
+				}
+				else if(tr.equalsIgnoreCase("tr"))
+				{
+					System.out.println("Enter account number to Deposit To");
+					String to_acc_num =sc.nextLine();					
+					Validation.validate_Account_Num(to_acc_num);
+					
+					int index_to_acc =find_Account(to_acc_num);	//need to  be checked
+					
+					
+					int index_from_acc =find_Account(account_num);
+					
+					
+						while(true)
+						{
+							if(list.get(index_from_acc).getBalance() < am){
+								System.out.println("Insufficient Funds, current balance : "+list.get(index_from_acc).getBalance());
+								System.out.println("Enter another amount ");
+								String new_amount = sc.nextLine();
+								am= Double.parseDouble(new_amount);
+							}
+							else 
+								break;
+						}
+					
+					
+					
+					transaction.add(Transaction.getTransaction(
+							Integer.parseInt(to_acc_num), am, date, tr_id));	//deposit
+					
+					am = 0 - am;
+					transaction.add(Transaction.getTransaction(					//withdraw
+							Integer.parseInt(account_num), am, date, tr_id));
+					
+					
+				}
+				else // Withdrawal
 				{
 					am = 0 - am;
 					transaction.add(Transaction.getTransaction(
@@ -212,10 +300,10 @@ public class TransactionApp {
         try {
 		for(Account elem:new_list)
 		{
-			String new_accounts ="insert into BANK_ACCT (ACC_NUMBER, NAME, BALANCE)values("+elem.getAcc_number()+ " ,'"+elem.getName()+"',"+elem.getBalance()+")";
+			String new_accounts ="insert into BANK_ACCT (ACC_NUMBER, ACC_TYPE, NAME, BALANCE)values("+elem.getAcc_number()+" ,'"+elem.getAcc_type()+ "' ,'"+elem.getName()+"',"+elem.getBalance()+")";
 			System.out.println(new_accounts);
 			PreparedStatement preStatement = conn.prepareStatement(new_accounts);
-			ResultSet result = preStatement.executeQuery();
+			preStatement.executeQuery();
 		}
 		
         } catch (SQLException e1) {
@@ -306,6 +394,7 @@ public class TransactionApp {
 					account_object.setName(result.getString("NAME"));
 					account_object.setBalance(Double.parseDouble(result.getString("BALANCE")));
 					account_object.setAcc_number(Integer.parseInt(result.getString("ACC_NUMBER")));
+					account_object.setAcc_type((result.getString("ACC_TYPE")));
 	            	list.add(account_object);
 	            	
 	        }
@@ -345,6 +434,29 @@ public class TransactionApp {
 		return -1;
 	}
 	
+	public static int find_Account_by_name(String name) {
+		int check =0;
+		int sav = 0;
+		int ret =3;
+		for (Account elem : TransactionApp.list) {
+			if (elem.getName().equalsIgnoreCase(name))
+			{
+				if(elem.getAcc_type().equalsIgnoreCase("Checking"))
+						check= 1;
+				if(elem.getAcc_type().equalsIgnoreCase("Saving"))
+					sav= 1;			
+			}
+		}
+		if(check ==1 && sav == 1)
+			ret = 0;
+		else if(check ==1 && sav != 1)
+			ret = 1;
+		else if(sav ==1 && check != 1)
+			ret =2;
+		else ret = 3;
+			
+		return ret;
+	}
 	
 	public static void printAccounts() {
 		System.out.println("\n---------------ACCOUNTS------------");
@@ -364,6 +476,23 @@ public class TransactionApp {
 			System.out.format("%15s%15s%15s\n", elem.getDate(),+elem.account_number,+elem.getTransaction_amount());
 		}
 	}
+	public static int generate_Unique_acc_num()
+	{
+		Random r = new Random();
+		int acc_num = 9999+r.nextInt(10000);
+		String acc = Integer.toString(acc_num);
+		while(true)
+		{
+			if(find_Account(acc)!=-1){
+			acc_num = 1000+r.nextInt(10000);
+			acc = Integer.toString(acc_num);
+			continue;
+			}
+			else break;
+		}
+		System.out.println("random account 3   "+acc_num);
+		return acc_num;
 	
+	}
 
 }
