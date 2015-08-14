@@ -272,6 +272,47 @@ public class TransactionApp {
 				}
 				else // Withdrawal
 				{
+					double rem_bal=0;
+					String ac_type = list.get(find_Account(account_num)).getAcc_type();
+					if(ac_type.equalsIgnoreCase("Checking"))
+					{
+						double c_balance = list.get(find_Account(account_num)).getBalance();
+						if(c_balance < am)
+							{
+							    String cust_name =list.get(find_Account(account_num)).getName();
+							    int type = find_Account_by_name(cust_name);
+							    if(type == 0)	//has a saving account
+							    {
+							    	System.out.println("Came here");
+							    	
+							    	int acc_num2 = get_account_savings(cust_name);
+							    	double s_balance = list.get(find_Account(Integer.toString(acc_num2))).getBalance();
+							    	if(c_balance+s_balance < am)
+							    	{
+							    	 	System.out.println("Insufficient funds");
+								    	continue;
+							    	}
+							    	else
+							    	{
+							    		rem_bal = 0 - am + c_balance-15;
+							    		double c_bal = 0-c_balance;
+							    		transaction.add(Transaction.getTransaction(
+												Integer.parseInt(account_num), c_bal, date, tr_id));
+							    		transaction.add(Transaction.getTransaction(acc_num2, rem_bal, date, tr_id));
+							    		continue;
+							    	}
+		
+							    }
+							    else
+							    {
+							    	System.out.println("Insufficient funds");
+							    	continue;
+							    }
+						}
+						
+					}
+					
+					
 					am = 0 - am;
 					transaction.add(Transaction.getTransaction(
 							Integer.parseInt(account_num), am, date, tr_id));
@@ -285,7 +326,7 @@ public class TransactionApp {
 		printTransactions();
 		perform_Transactions();
 
-		printAccounts();
+	//	printAccounts();
 		// write back the modified account info
 
 
@@ -379,7 +420,18 @@ public class TransactionApp {
         //System.out.println("connected");
       
     }
-	
+	public static int get_account_savings(String name)
+	{
+		int acc_num =0;
+		ResultSet result= null;
+		for(Account elem:list)
+		{
+				if(elem.getName().equalsIgnoreCase(name) && elem.getAcc_type().equalsIgnoreCase("Saving"))
+					return elem.getAcc_number();
+		}
+		
+		return 0;
+	}
 	public static void getAccounts()
 	{
 		 String get_accounts ="select * from BANK_ACCT";
