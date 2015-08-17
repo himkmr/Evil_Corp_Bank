@@ -63,7 +63,7 @@ public class TransactionApp {
 			System.out
 					.println("Enter  account number or -1 to stop entering accounts:  ");
 			String account_num = sc.nextLine();
-
+			whilelabel:
 			while (!Validation.validate_Account_Num(account_num)) {
 				System.out
 						.println("Invalid! Enter an account number or -1 to stop entering accounts:  ");
@@ -76,7 +76,8 @@ public class TransactionApp {
 			else {
 
 				for (Account elem : list) {
-					if (Integer.parseInt(account_num) == elem.getAcc_number()) {
+					if (Integer.parseInt(account_num) == elem.getAcc_number()) 
+					{
 						flag = true;
 						System.out.println("Account present, balance is: "
 								+ elem.getBalance());
@@ -95,19 +96,19 @@ public class TransactionApp {
 							System.out.println("Account removed");
 							System.out.println("Current Accounts:");
 							for (Account elem2 : list) {
-								System.out.println(elem2.getName()
-										+ ": Account Number  "
-										+ elem2.getAcc_number() + " Balance: "
-										+ elem2.getBalance()+" Acc type: "+ elem2.getAcc_type());
+								System.out.printf("%15s%15d%15f%15s\n",elem2.getName(),elem2.getAcc_number() ,
+										elem2.getBalance(), elem2.getAcc_type());
 							}
-							//flag = true;
-							break;
+							
 						} 
-
+						flag = true;
+						break;
 					}
 
 				}
-
+				if(flag)
+					continue;	//continue with while
+				
 				ac = new Account();
 				ac.setAcc_number(Integer.parseInt(account_num));
 				System.out.println("Enter the name for your account# "
@@ -342,7 +343,7 @@ public class TransactionApp {
 		for(Account elem:new_list)
 		{
 			String new_accounts ="insert into BANK_ACCT (ACC_NUMBER, ACC_TYPE, NAME, BALANCE)values("+elem.getAcc_number()+" ,'"+elem.getAcc_type()+ "' ,'"+elem.getName()+"',"+elem.getBalance()+")";
-			System.out.println(new_accounts);
+		//	System.out.println(new_accounts);
 			PreparedStatement preStatement = conn.prepareStatement(new_accounts);
 			preStatement.executeQuery();
 		}
@@ -390,7 +391,7 @@ public class TransactionApp {
 
 			String set_transactions = "insert into TRANSACTION (account_number, transaction_amount,transaction_id,transaction_date) values  ("+elem.account_number+","+ elem.transaction_amount+","+ elem.transaction_id+","+ "TO_DATE('"+elem.getDate()+"','mm/dd/yyyy'))";
 			// insert the data
-			System.out.println(set_transactions);
+		//	System.out.println(set_transactions);
 			PreparedStatement preStatement = conn.prepareStatement(set_transactions);
 			ResultSet result = preStatement.executeQuery();
 		}
@@ -525,7 +526,7 @@ public class TransactionApp {
 		System.out.format("%25s%25s%25s\n", "Date", "Account #", "$$$$$$$");
 		System.out.format("%25s%25s%25s\n", "----", "--------", "-------");
 		for (Transaction elem : transaction) {
-			System.out.format("%15s%15s%15s\n", elem.getDate(),+elem.account_number,+elem.getTransaction_amount());
+			System.out.format("%25s%25s%25s\n", elem.getDate(),+elem.account_number,+elem.getTransaction_amount());
 		}
 	}
 	public static int generate_Unique_acc_num()
@@ -542,7 +543,7 @@ public class TransactionApp {
 			}
 			else break;
 		}
-		System.out.println("random account 3   "+acc_num);
+		System.out.println("Your new account #   "+acc_num);
 		return acc_num;
 	
 	}
